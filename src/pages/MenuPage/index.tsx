@@ -1,44 +1,22 @@
 import {FC, useEffect, useState} from 'react';
 import s from "./MenuPage.module.scss";
-import axios from "axios";
-import {useStore} from "zustand";
 import {useBearStore} from "../../store/store";
-import ProductCard from "./ProductCard";
+import RecipeCard from "./RecipeCard";
 
 const MenuPage:FC = () => {
-    const [fetchingNextPage, setFetchingNextPage] = useState(false);
     const {
         page,
         recipes,
         selectedRecipes,
-        setSelectedRecipes
-    } = useBearStore(state => state)
+        setSelectedRecipes,
+        fetchRecipes
+    } = useBearStore(state => state);
 
     const VISIBLE_RECIPES = 5;
 
     useEffect(() => {
         fetchRecipes(page);
     }, [page]);
-
-    console.log(fetchingNextPage)
-
-    const fetchRecipes = async (currentPage: number) => {
-        try {
-            console.log("fetch")
-            setFetchingNextPage(true);
-            const response = await axios.get(
-                `https://api.punkapi.com/v2/beers?page=${currentPage}`
-            );
-            const data = response.data;
-            setSelectedRecipes([]);
-            useBearStore.setState({ recipes: [...data] });
-        } catch (error) {
-            console.error('Error fetching recipes:', error);
-        } finally {
-            console.log("cancel")
-            setFetchingNextPage(false)
-        }
-    };
 
     const handleRightClick = (recipeId: number, event: any) => {
         event.preventDefault();
@@ -56,7 +34,6 @@ const MenuPage:FC = () => {
             );
             setSelectedRecipes(updatedSelectedRecipes);
         } else {
-            // Go to the single recipe page
             console.log(`Go to recipe ${recipeId}`);
         }
     };
@@ -68,15 +45,11 @@ const MenuPage:FC = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            console.log("2", fetchingNextPage)
-
-            if (fetchingNextPage) {
-                return;
-            }
-
             const windowHeight = window.innerHeight;
             const documentHeight = document.documentElement.scrollHeight;
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollTop = document.documentElement.scrollTop;
+
+            console.log(scrollTop + windowHeight, documentHeight)
 
             if (scrollTop + windowHeight >= documentHeight && recipes.length - selectedRecipes.length >= VISIBLE_RECIPES) {
                 const updatedRecipes = recipes.slice(VISIBLE_RECIPES);
@@ -84,8 +57,8 @@ const MenuPage:FC = () => {
                 window.scrollTo({ top: 0});
             }
 
-            if (recipes.length <= VISIBLE_RECIPES && scrollTop + windowHeight >= documentHeight) {
-                useBearStore.setState((prevState) => ({ page: prevState.page + 1 }));
+            if (scrollTop === 0 && recipes.length <= VISIBLE_RECIPES && scrollTop + windowHeight >= documentHeight) {
+                useBearStore.setState((state) => ({ page: state.page + 1 }));
             }
         };
 
@@ -93,12 +66,12 @@ const MenuPage:FC = () => {
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, [recipes, fetchingNextPage]);
+    }, [recipes]);
 
     return (
         <div className={s.productList}>
             {visibleRecipes.map((recipe, index) => (
-                <ProductCard
+                <RecipeCard
                     id={recipe.id}
                     index={index}
                     name={recipe.name}

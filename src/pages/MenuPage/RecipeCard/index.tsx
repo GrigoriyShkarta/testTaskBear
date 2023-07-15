@@ -24,7 +24,6 @@ type RecipeCardProps = {
 const RecipeCard: FC<RecipeCardProps> = ({id, name, img, description, food_pairing,
                                              ingredients, index, selected,
                                          onRightClick}) =>
-
     <div
         className={`${s.card} ${index % 2 !== 1 ? s.card__gray : ''}`}
         key={id}
