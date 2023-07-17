@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from 'react';
+import {FC, useEffect} from 'react';
 import s from "./MenuPage.module.scss";
 import {useBearStore} from "../../store/store";
 import RecipeCard from "./RecipeCard";
@@ -27,17 +27,6 @@ const MenuPage:FC = () => {
         }
     };
 
-    const handleLeftClick = (recipeId: number) => () => {
-        if (selectedRecipes.includes(recipeId)) {
-            const updatedSelectedRecipes = selectedRecipes.filter(
-                (id) => id !== recipeId
-            );
-            setSelectedRecipes(updatedSelectedRecipes);
-        } else {
-            console.log(`Go to recipe ${recipeId}`);
-        }
-    };
-
     const visibleRecipes = recipes.slice(
         (page - 1) * VISIBLE_RECIPES,
         page * VISIBLE_RECIPES
@@ -45,20 +34,20 @@ const MenuPage:FC = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            const windowHeight = window.innerHeight;
+            const windowHeight = document.documentElement.clientHeight;
             const documentHeight = document.documentElement.scrollHeight;
-            const scrollTop = document.documentElement.scrollTop;
+            const scrollTop = window.scrollY;
 
-            console.log(scrollTop + windowHeight, documentHeight)
-
-            if (scrollTop + windowHeight >= documentHeight && recipes.length - selectedRecipes.length >= VISIBLE_RECIPES) {
+            if (
+                scrollTop + windowHeight >= documentHeight &&
+                recipes.length - selectedRecipes.length >= VISIBLE_RECIPES
+            ) {
                 const updatedRecipes = recipes.slice(VISIBLE_RECIPES);
-                useBearStore.setState({ recipes: [...updatedRecipes] });
-                window.scrollTo({ top: 0});
-            }
-
-            if (scrollTop === 0 && recipes.length <= VISIBLE_RECIPES && scrollTop + windowHeight >= documentHeight) {
-                useBearStore.setState((state) => ({ page: state.page + 1 }));
+                useBearStore.setState((prevState) => ({ recipes: [...updatedRecipes] }));
+                window.scrollTo({ top: 0 });
+                if (recipes.length <= VISIBLE_RECIPES) {
+                    useBearStore.setState((prevState) => ({ page: prevState.page + 1 }));
+                }
             }
         };
 

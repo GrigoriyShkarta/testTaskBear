@@ -1,4 +1,5 @@
 import {FC} from 'react';
+import {Link} from "react-router-dom";
 import s from "./ProductCard.module.scss"
 
 type Ingredient = {
@@ -18,7 +19,6 @@ type RecipeCardProps = {
     };
     selected: boolean;
     onRightClick: (id: number, event: any) => void;
-    // onLeftClick: (id: number) => void;
 };
 
 const RecipeCard: FC<RecipeCardProps> = ({id, name, img, description, food_pairing,
@@ -28,13 +28,14 @@ const RecipeCard: FC<RecipeCardProps> = ({id, name, img, description, food_pairi
         className={`${s.card} ${index % 2 !== 1 ? s.card__gray : ''}`}
         key={id}
         onContextMenu={(e) => onRightClick(id, e)}
-        // onClick={() => onLeftClick(id)}
     >
         <div className={s.card__imgWrapper}>
             <img className={s.card__img} src={img} alt="bearImage"/>
         </div>
         <div className={s.card__info}>
-            <h3 className={s.card__info_title}>{name}</h3>
+            <Link to={`recipe/${id}`}>
+                <h3 className={s.card__info_title}>{name}</h3>
+            </Link>
             <p className={s.card__info_description}>{description}</p>
             <div className={s.ingredients}>
                 <h4 className={s.ingredients__title}>Ingredients</h4>

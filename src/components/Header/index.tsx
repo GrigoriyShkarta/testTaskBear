@@ -7,7 +7,6 @@ const Header:FC = () => {
     const selectedRecipes = useBearStore((state) => state.selectedRecipes);
     const recipes = useBearStore((state) => state.recipes);
     const removeSelectedRecipes = useBearStore((state) => state.removeSelectedRecipes);
-    const page = useBearStore((state) => state.page);
 
     const handleDelete = () => {
         const updatedRecipes = recipes.filter((recipe) => !selectedRecipes.includes(recipe.id));
